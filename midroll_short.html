@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Mid-roll Live Streaming Advertising</title>
+	<style type="text/css">
+		video.video_player {
+			position: absolute;
+			right: 0;
+			bottom: 0;
+			min-width: 100%; 
+  			min-height: 100%; 
+			width: 100%;
+			height: 100%;
+			object-fit: fill;
+		}
+		#skip_ad {
+		    width: 200px;
+		    font-size: 18px;
+		    padding: 10px;
+		    border: blue;
+		    background: #000;
+		    color: #fff;
+		    cursor: pointer;
+		    position: absolute;
+		    z-index: 1;
+		    opacity: 0.0;
+		    right: 0;
+		    bottom: 12%;
+		}
+
+		#skip_ad:hover {
+		    background: #ddd;
+		    color: black;
+		}
+	</style>
+
+</head>
+<body>
+	<div id='main_video' z-index='-1'>
+		<video id='pre_video' class="video_player" controls>
+		<source src='./videos/short_video.mp4' type="video/mp4">
+			Your browser does not support HTML5 video. 
+		</video>
+	</div>
+	<div id='overlay_video' z-index=0>
+		<video id='ad_video' class="video_player">
+		<source src='./videos/ad_1.mp4' type="video/mp4">
+			Your browser does not support HTML5 video. 
+		</video>
+	</div>
+
+	<div>
+		<button id="skip_ad" onclick="skipAd()" z-index="-1" disabled>Skip Ad</button>
+	</div>
+	
+
+<script type="text/javascript">
+	var bg_vid = document.getElementById('pre_video');
+	var ad_vid = document.getElementById('ad_video');
+	var skip_btn = document.getElementById('skip_ad');
+	var playad = true;
+
+	bg_vid.style.zIndex=1;
+	bg_vid.addEventListener("playing", function(){
+		bg_vid.controls=false;
+		ad_vid.controls=true;
+	});
+
+	// start playing the ad, and mute the background video
+	bg_vid.addEventListener("timeupdate", function(){
+		if (bg_vid.currentTime >= 9 && playad == true){
+			playad = false;
+			bg_vid.style.zIndex = -1;
+			ad_vid.style.zIndex = 1;
+			bg_vid.style.opacity = 0.0;
+			ad_vid.style.opacity = 1.0;
+			bg_vid.muted = true;
+			ad_vid.play();
+		}
+	});
+
+	// do not allow ad to step-forward, but can back-ward
+	var ad_previous_time = 0;
+	ad_vid.addEventListener('timeupdate', function(){
+		if (!ad_vid.seeking){
+			ad_previous_time = Math.max(ad_previous_time, ad_vid.currentTime);
+		}
+		if (ad_vid.currentTime > 5){
+			skip_btn.style.opacity = 1.0;
+			skip_btn.disabled = false;
+		}
+	}, false);
+	ad_vid.addEventListener('seeking', function(evt){
+		if (ad_vid.currentTime > ad_previous_time){
+			ad_vid.currentTime = ad_previous_time;
+		}
+	}, true);
+
+	ad_vid.addEventListener('ended', function(){
+		skipAd();
+	}, false);
+
+	// after user skip the ad by clkciing 
+	function skipAd(){
+		ad_vid.style.zIndex = -1;
+		skip_btn.style.zIndex = 0;
+		skip_btn.disabled = true;
+		bg_vid.style.zIndex = 1;
+		ad_vid.muted = true;
+		bg_vid.muted = false;
+		bg_vid.style.opacity = 1.0;
+		ad_vid.style.opacity = 0.0;
+	}
+	
+</script>
+
+</body>
+</html>

@@ -1,2 +1,2 @@
-# livestreaming.github.io
-user study experiment for live streaming
+# xiangchen.github.io
+user study experiment for live streaming advertising
